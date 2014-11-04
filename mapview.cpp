@@ -102,6 +102,9 @@ void MapView::setDimension(QString path, int scale)
 	}
 	cache.clear();
 	cache.setPath(path);
+	
+	entities.clear();
+	
 	redraw();
 }
 
@@ -116,14 +119,24 @@ void MapView::setFlags(int flags)
 	this->flags=flags;
 }
 
-void MapView::addSpecialBlockType(QString type)
+void MapView::clearStructureFilter()
 {
-	specialBlockTypes.insert(type);
+	structuresFilter.clear();
 }
 
-void MapView::clearSpecialBlockTypes()
+void MapView::addStructureFilter(QString type)
 {
-	specialBlockTypes.clear();
+	structuresFilter.insert(type);
+}
+
+void MapView::clearEntityFilter()
+{
+	entityFilter.clear();
+}
+
+void MapView::addEntityFilter(Entity::ECAT type)
+{
+	entityFilter.insert(type);
 }
 
 
@@ -314,7 +327,6 @@ void MapView::redraw()
 		for (int cx=startx;cx<startx+blockswide;cx++)
 			drawChunk(cx,cz);
 
-	//add on the entity layer
 	//TODO: handle height?
 	QPainter canvas(&image);
 	double halfviewwidth = image.width()/2/zoom;
@@ -324,19 +336,28 @@ void MapView::redraw()
 	double x2 = x + halfviewwidth;
 	double z2 = z + halvviewheight;
 
-	foreach(const QString& type, specialBlockTypes)
+	//add on the Structure layer
+    foreach(const QString& type, structuresFilter)
 	{
-		foreach(const SpecialBlock& block, specialBlocks[type])
+		foreach(const Structure& element, structures[type])
+		{
+			if (element.intersects(x1, 0, z1, x2+1, depth, z2+1))
+			{
+                element.draw(x1, z1, zoom, canvas);
+			}
+		}
+	}
+
+	//add on the Entity layer
+	foreach(Entity::ECAT type, entityFilter)
+	{
+		foreach(const Entity& element, entities[type])
 		{
 			//for Entitites, restrict the depth we see them
-			int mindepth = 0;
-			if (type == "Entity")
+			int mindepth = getY(floor(element.getX()), floor(element.getZ())) - 4;
+			if (element.intersects(x1, mindepth, z1, x2+1, depth, z2+1))
 			{
-				mindepth = getY(block.getX1(), block.getZ1()) - 4;
-			}
-			if (block.intersects(x1, mindepth, z1, x2+1, depth, z2+1))
-			{
-				block.draw(x1, z1, zoom, canvas);
+                element.draw(x1, z1, zoom, canvas);
 			}
 		}
 	}
@@ -357,15 +378,9 @@ void MapView::drawChunk(int x, int z)
 		if (chunk->renderedAt == -1)
 		{
 			//this should probably not be in the drawing code?
-			QPair<QMap<QString, Entity>::iterator, QMap<QString, Entity>::iterator> range = chunk->entities.equal_range("Entity");
-			for (QMap<QString, Entity>::iterator it = range.first; it != range.second; ++it)
+			foreach (Entity element, chunk->entities)
 			{
-				emit foundSpecialBlock(it->getX(),
-									   it->getY(),
-									   it->getZ(),
-									   tr("Entity"),
-									   it->getId(),
-									   it->getProperties());
+				addEntity( element );
 			}
 		}
 		renderChunk(chunk);
@@ -620,20 +635,17 @@ void MapView::getToolTip(int x, int z)
 		BiomeInfo &bi=biomes->getBiome(chunk->biomes[(x&0xf)+(z&0xf)*16]);
 		biome=bi.name;
 
-		foreach (const QString& type, specialBlockTypes)
+		foreach (Entity::ECAT type, entityFilter)
 		{
-			foreach (const SpecialBlock& block, specialBlocks[type])
+			foreach (const Entity& entity, entities[type])
 			{
 				double ymin = 0;
 				double ymax = depth;
-				if (type == "Entity")
+				ymin = y - 4;
+				ymax = y + 4;
+				if (entity.intersects(x, ymin, z, x, ymax, z))
 				{
-					ymin = y - 4;
-					ymax = y + 4;
-				}
-				if (block.intersects(x, ymin, z, x, ymax, z))
-				{
-					entityIds[block.getDisplay()]++;
+					entityIds[entity.getId()]++;
 				}
 			}
 		}
@@ -668,11 +680,28 @@ void MapView::getToolTip(int x, int z)
 						  .arg(entityStr));
 }
 
-void MapView::markBlock(QString type, double x1, double y1, double z1, double x2, double y2, double z2, QColor color, QString display)
+void MapView::addStructure(Structure & structure)
 {
-	specialBlocks[type].push_back(SpecialBlock(x1, y1, z1, x2, y2, z2, color, display));
+	structures[structure.getId()].push_back(structure);
 }
 
+void MapView::addStructure(QString type,
+			               int x1, int y1, int z1,
+			               int x2, int y2, int z2)
+{
+	structures[type].push_back(Structure(x1, y1, z1, x2, y2, z2, type));
+}
+
+void MapView::addEntity(Entity & entity)
+{
+	entities[entity.getCatergory()].push_back(entity);
+}
+
+void MapView::addEntity(QString type, double x, double y, double z)
+{
+	Entity e(x, y, z, type);
+	entities[e.getCatergory()].push_back(e);
+}
 
 int MapView::getY(int x, int z)
 {
@@ -705,54 +734,4 @@ int MapView::getY(int x, int z)
 		}
 	}
 	return y;
-}
-
-MapView::SpecialBlock::SpecialBlock(double x1, double y1, double z1,
-									double x2, double y2, double z2, QColor color, const QString &display):
-	x1(x1), y1(y1), z1(z1), x2(x2), y2(y2), z2(z2), color(color), display(display)
-{
-	assert(x2 >= x1);
-	assert(y2 >= y1);
-	assert(z2 >= z1);
-}
-
-void MapView::SpecialBlock::draw(double offsetX, double offsetZ, double scale, QPainter& canvas) const
-{    
-	int left = (int)((x1 - offsetX) * scale) + MIN_SIZE/4;
-	int top = (int)((z1 - offsetZ) * scale) + MIN_SIZE/4;
-	int w = (int)((x2 - x1 + 1) * scale) - MIN_SIZE/2;
-	int h = (int)((z2 - z1 + 1) * scale) - MIN_SIZE/2;
-	if (w < MIN_SIZE)
-	{
-		left = (left + w / 2) - MIN_SIZE / 2;
-		w = MIN_SIZE;
-	}
-	if (h < MIN_SIZE)
-	{
-		top = (top + h / 2) - MIN_SIZE / 2;
-		h = MIN_SIZE;
-	}
-	QPen pen = canvas.pen();
-	pen.setColor(color);
-	//pen.setWidth(MIN_SIZE/2);
-	canvas.setPen(QColor(0, 0, 0, 0));
-	canvas.setBrush(QBrush(color));
-	canvas.drawRoundedRect(left, top, w, h, MIN_SIZE, MIN_SIZE);
-	QSize labelsize = canvas.fontMetrics().size(0, display);
-	canvas.setPen(Qt::black);
-	if (labelsize.height() < h && labelsize.width() < w)
-	{
-		canvas.drawText(left, top, w, h, Qt::AlignCenter, display);
-	}
-}
-
-bool MapView::SpecialBlock::intersects(double x1, double y1, double z1,
-									   double x2, double y2, double z2) const
-{
-	return x1 <= this->x2 &&
-	 this->x1 <= x2 &&
-		   y1 <= this->y2 &&
-	 this->y1 <= y2 &&
-		   z1 <= this->z2 &&
-	 this->z1 <= z2;
 }

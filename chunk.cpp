@@ -80,7 +80,7 @@ void Chunk::load(NBT &nbt)
 	{
 		Entity e;
 		e.load(entitylist->at(i));
-		entities.insertMulti("Entity", e);
+		entities.append(e);
 	}
 
 

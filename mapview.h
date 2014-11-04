@@ -31,6 +31,9 @@
 
 #include <QtWidgets/QWidget>
 #include "chunkcache.h"
+#include "structure.h"
+#include "entity.h"
+
 class DefinitionManager;
 class BiomeIdentifier;
 class BlockIdentifier;
@@ -61,8 +64,11 @@ public:
 	void setLocation(double x,double z);
 	void setDimension(QString path,int scale);
 	void setFlags(int flags);
-	void addSpecialBlockType(QString type);
-	void clearSpecialBlockTypes();
+
+	void clearStructureFilter();
+	void addStructureFilter(QString type);
+	void clearEntityFilter();
+	void addEntityFilter(Entity::ECAT type);
 
 	// public for saving the png
 	void renderChunk(Chunk *chunk);
@@ -73,10 +79,14 @@ public slots:
 	void setDepth(int depth);
 	void chunkUpdated(int x,int z);
 	void redraw();
-	void markBlock(QString type,
-				   double x1, double y1, double z1,
-				   double x2, double y2, double z2,
-				   QColor color, QString display);
+
+	void addStructure(Structure & structure);
+	void addStructure(QString type,
+				      int x1, int y1, int z1,
+				      int x2, int y2, int z2);
+	void addEntity(Entity & entity);
+	void addEntity(QString type,
+				   double x, double y, double z);
 
 	/// Clears the cache and redraws, causing all chunks to be re-loaded; but keeps the viewport
 	void clearCache();
@@ -84,7 +94,7 @@ public slots:
 signals:
 	void hoverTextChanged(QString text);
 	void demandDepthChange(int value);
-	void foundSpecialBlock(int x, int y, int z, QString type, QString display, QVariant properties);
+	void foundSpecialBlock(double x, double y, double z, QString type, QString display, QVariant properties);
 	void showProperties(int x, int y, int z);
 
 protected:
@@ -98,11 +108,11 @@ protected:
 	void paintEvent(QPaintEvent *);
 
 private:
-
-	class SpecialBlock
+/*
+	class Structure
 	{
 	public:
-		SpecialBlock(double x1, double y1, double z1,
+		Structure(double x1, double y1, double z1,
 					 double x2, double y2, double z2,
 					 QColor color, const QString& display);
 		void draw(double offsetX, double offsetZ, double scale, QPainter& canvas) const;
@@ -126,7 +136,7 @@ private:
 		double x2, y2, z2;
 		QColor color;
 		QString display;
-	};
+	};*/
 
 	void drawChunk(int x,int z);
 	void getToolTip(int x,int z);
@@ -143,8 +153,11 @@ private:
 	BlockIdentifier *blocks;
 	BiomeIdentifier *biomes;
 	uchar placeholder[16*16*4]; // no chunk found placeholder
-	QSet<QString> specialBlockTypes;
-	QMap<QString, QList<SpecialBlock> > specialBlocks;
+	
+	QSet<QString> structuresFilter;
+	TStructureMap structures;
+	QSet<Entity::ECAT> entityFilter;
+	TEntityMap         entities;
 };
 
 #endif

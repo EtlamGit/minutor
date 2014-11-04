@@ -25,7 +25,8 @@ HEADERS += mapview.h minutor.h nbt.h zlib.h zconf.h \
     definitionupdater.h \
     worldsave.h \
     entity.h \
-    properties.h
+    properties.h \
+    structure.h
 SOURCES += mapview.cpp main.cpp minutor.cpp nbt.cpp \
 	labelledslider.cpp \
     chunk.cpp \
@@ -41,7 +42,8 @@ SOURCES += mapview.cpp main.cpp minutor.cpp nbt.cpp \
     definitionupdater.cpp \
     worldsave.cpp \
     entity.cpp \
-    properties.cpp
+    properties.cpp \
+    structure.cpp
 RESOURCES = minutor.qrc
 
 desktopfile.path = /usr/share/applications

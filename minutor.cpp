@@ -54,8 +54,6 @@ Minutor::Minutor():
 	mapview = new MapView;
 	connect(mapview,     SIGNAL(hoverTextChanged(QString)),
 			statusBar(), SLOT(showMessage(QString)));
-	connect(mapview,     SIGNAL(foundSpecialBlock(int,int,int,QString,QString,QVariant)),
-			this,        SLOT(specialBlock(int,int,int,QString,QString,QVariant)));
 	connect(mapview,     SIGNAL(showProperties(int,int,int)),
 			this,        SLOT(showProperties(int,int,int)));
 	dm=new DefinitionManager(this);
@@ -216,16 +214,23 @@ void Minutor::toggleFlags()
 	if (caveModeAct->isChecked())     flags |= MapView::flgCaveMode;
 	if (depthShadingAct->isChecked()) flags |= MapView::flgDepthShading;
 	mapview->setFlags(flags);
-	mapview->clearSpecialBlockTypes();
 
-	QList<QAction*>::iterator it, itEnd = entityActions.end();
-	for (it = entityActions.begin(); it != itEnd; ++it)
+	mapview->clearStructureFilter();
+	QList<QAction*>::iterator it, itEnd = structureActions.end();
+	for (it = structureActions.begin(); it != itEnd; ++it)
 	{
 		if ((*it)->isChecked())
 		{
-			mapview->addSpecialBlockType((*it)->data().toString());
+			mapview->addStructureFilter((*it)->data().toString());
 		}
 	}
+
+	mapview->clearEntityFilter();
+	if (entityHostileAct->isChecked()) mapview->addEntityFilter(Entity::ECAT::ET_HOSTILE);
+	if (entityPassiveAct->isChecked()) mapview->addEntityFilter(Entity::ECAT::ET_PASSIVE);
+	if (entityItemAct->isChecked())    mapview->addEntityFilter(Entity::ECAT::ET_ITEM);
+	if (entityOtherAct->isChecked())   mapview->addEntityFilter(Entity::ECAT::ET_OTHER);
+
 	mapview->redraw();
 }
 
@@ -321,6 +326,32 @@ void Minutor::createActions()
 			this,        SLOT(toggleFlags()));
 	caveModeAct->setEnabled(false);
 
+	
+	entityHostileAct = new QAction(tr("&Hostile"),this);
+	entityHostileAct->setCheckable(true);
+	entityHostileAct->setStatusTip(tr("Toggle hostile Mob overlay on/off"));
+	connect(entityHostileAct, SIGNAL(triggered()),
+			this,             SLOT(toggleFlags()));
+
+	entityPassiveAct = new QAction(tr("&Passive"),this);
+	entityPassiveAct->setCheckable(true);
+	entityPassiveAct->setStatusTip(tr("Toggle passive Mob overlay on/off"));
+	connect(entityPassiveAct, SIGNAL(triggered()),
+			this,             SLOT(toggleFlags()));
+
+	entityItemAct = new QAction(tr("&Items"),this);
+	entityItemAct->setCheckable(true);
+	entityItemAct->setStatusTip(tr("Toggle Item overlay on/off"));
+	connect(entityItemAct, SIGNAL(triggered()),
+			this,          SLOT(toggleFlags()));
+
+	entityOtherAct = new QAction(tr("&Others"),this);
+	entityOtherAct->setCheckable(true);
+	entityOtherAct->setStatusTip(tr("Toggle other entities overlay on/off"));
+	connect(entityOtherAct, SIGNAL(triggered()),
+			this,           SLOT(toggleFlags()));
+	
+	
 	manageDefsAct = new QAction(tr("Manage &Definitions..."),this);
 	manageDefsAct->setStatusTip(tr("Manage block and biome definitions"));
 	connect(manageDefsAct, SIGNAL(triggered()),
@@ -378,9 +409,15 @@ void Minutor::createMenus()
 	viewMenu->addAction(mobSpawnAct);
 	viewMenu->addAction(caveModeAct);
 	viewMenu->addAction(depthShadingAct);
-	// [View->Special]
-	entitiesMenu = viewMenu->addMenu(tr("S&pecial"));
-	entitiesMenu->setEnabled(false);
+	// [View->Structures]
+	structuresMenu = viewMenu->addMenu(tr("S&tructures"));
+	structuresMenu->setEnabled(false);
+	// [View->Entities]
+	entitiesMenu = viewMenu->addMenu(tr("&Entities"));
+	entitiesMenu->addAction(entityHostileAct);
+	entitiesMenu->addAction(entityPassiveAct);
+	entitiesMenu->addAction(entityItemAct);
+	entitiesMenu->addAction(entityOtherAct);
 
 	viewMenu->addSeparator();
 	viewMenu->addAction(refreshAct);
@@ -537,17 +574,9 @@ void Minutor::rescanWorlds()
 	//on startup anyway.
 }
 
-void Minutor::specialBlock(int x, int y, int z, QString type, QString display, QVariant properties)
+void Minutor::extendStructuresMenu(QString type)
 {
-	specialArea(x, y, z, x, y, z, type, display, properties);
-}
-
-void Minutor::specialArea(double x1, double y1, double z1,
-						  double x2, double y2, double z2,
-						  QString type, QString display, QVariant properties)
-{
-	Entity e = {x1, y1, z1, x2, y2, z2, type, display, properties};
-	if (!entities.contains(type))
+	if (!structuresMenuEntries.contains(type))
 	{
 		//generate a unique keyboard shortcut
 		QKeySequence sequence;
@@ -576,69 +605,25 @@ void Minutor::specialArea(double x1, double y1, double z1,
 			++ampPos;
 		}
 
-
-		entitiesMenu->setEnabled(true);
-		entityActions.push_back(new QAction(actionName, this));
-		entityActions.last()->setShortcut(sequence);
-		entityActions.last()->setStatusTip(QString(tr("Toggle viewing of %1").arg(type)));
-		entityActions.last()->setEnabled(true);
-		entityActions.last()->setData(type);
-		entityActions.last()->setCheckable(true);
-		entitiesMenu->addAction(entityActions.last());
-		connect(entityActions.last(), SIGNAL(triggered()), this, SLOT(toggleFlags()));
+		// append this type to list
+		structuresMenuEntries.append(type);
+		structuresMenu->setEnabled(true);
+		structureActions.push_back(new QAction(actionName, this));
+		structureActions.last()->setShortcut(sequence);
+		structureActions.last()->setStatusTip(QString(tr("Toggle viewing of %1").arg(type)));
+		structureActions.last()->setEnabled(true);
+		structureActions.last()->setData(type);
+		structureActions.last()->setCheckable(true);
+		structuresMenu->addAction(structureActions.last());
+		connect(structureActions.last(), SIGNAL(triggered()), this, SLOT(toggleFlags()));
 	}
-
-	//pick a color
-	//TODO: configurable?
-	QColor color;
-	if (type == "Entity" && (QMetaType::Type)properties.type() == QMetaType::QVariantMap)
-	{
-		//this odd logic should be replaced by a list, but i don't have one,
-		//and it may continue working after future updates.
-		QMap<QString, QVariant> propmap = properties.toMap();
-		if (propmap.contains("InLove")  ||  //if its breedable, then its not an enemy?
-				propmap.contains("Willing") ||
-				propmap["id"].toString().contains("Golem") ||
-				propmap["id"] == "SnowMan" ||
-				propmap["id"] == "Squid" ||
-				propmap["id"] == "Bat"
-				)
-		{
-			color = Qt::white;
-		}
-		else if (propmap.size() < 20)
-		{
-			//simple objects are usually items
-			color = Qt::blue;
-		}
-		else
-		{
-			//otherwise, it will probably hurt you if you go near it
-			color = Qt::red;
-		}
-		color.setAlpha(128);
-	}
-	else
-	{
-		//an area of some kind... just make a color up
-		quint32 hue = qHash(type);
-
-		color.setHsv(hue % 360, 255, 255, 64);
-
-	}
-	if (maxentitydistance < (x2 - x1) / 2)
-		maxentitydistance = (x2 - x1) / 2;
-	if (maxentitydistance < (z2 - z1) / 2)
-		maxentitydistance = (z2 - z1) / 2;
-	entities[type].insertMulti(qMakePair(floor((x1 + x2)/2), floor((z1 + z2)/2)), e);
-	mapview->markBlock(type, x1, y1, z1, x2, y2, z2, color, display);
 }
 
 void Minutor::showProperties(int x, int y, int z)
 {
-	QMap<QString, QVariant> values;
-	EntityMap::iterator it, itEnd = entities.end();
-	for (it = entities.begin(); it != itEnd; ++it)
+/*	QMap<QString, QVariant> values;
+	StructureMap::iterator it, itEnd = structures.end();
+	for (it = structures.begin(); it != itEnd; ++it)
 	{
 		//search near the given coordinates for areas
 		//TODO: alternative? bigger bins? kd tree?
@@ -646,11 +631,11 @@ void Minutor::showProperties(int x, int y, int z)
 		{
 			for (int iz = z - maxentitydistance; iz < z + maxentitydistance; ++iz)
 			{
-				QList<Entity> entities = it->values(qMakePair(ix, iz));
-				if (entities.size() > 0)
+				QList<Structure> structures = it->values(qMakePair(ix, iz));
+				if (structures.size() > 0)
 				{
 					QList<QVariant> list;
-					foreach(const Entity& e, entities)
+					foreach(const Structure& e, structures)
 					{
 						if (e.intersects(x, 0, z, x, y+4, z))
 						{
@@ -667,7 +652,7 @@ void Minutor::showProperties(int x, int y, int z)
 	{
 		propView->DisplayProperties(values);
 		propView->show();
-	}
+	}*/
 }
 
 void Minutor::loadStructures(const QDir& dataPath)
@@ -682,7 +667,7 @@ void Minutor::loadStructures(const QDir& dataPath)
 		if (data && data != &NBT::Null)
 		{
 			Tag* features = data->at("Features");
-			if (features && data != &NBT::Null)
+			if (features && features != &NBT::Null)
 			{
 				//convert the features to a qvariant here
 				QVariant maybeFeatureMap = features->getData();
@@ -691,28 +676,11 @@ void Minutor::loadStructures(const QDir& dataPath)
 					QMap<QString, QVariant> featureMap = maybeFeatureMap.toMap();
 					foreach(const QVariant& feature, featureMap)
 					{
-						if ((QMetaType::Type)feature.type() == QMetaType::QVariantMap)
+						Structure element;
+						if (element.load(feature))
 						{
-							QMap<QString, QVariant> featureProperties = feature.toMap();
-							//check for required properties
-							if (featureProperties.contains("BB") //bounding box... gives us the position
-									&& (QMetaType::Type)featureProperties["BB"].type() == QMetaType::QVariantList
-									&& featureProperties.contains("id") //name of the feature type
-
-									)
-							{
-								//TODO: bb is a bounding box. Should allow
-								//for displaying an area rather than a point
-								QList<QVariant> bb = featureProperties["BB"].toList();
-								if (bb.size() == 6)
-								{
-									specialArea(bb[0].toInt(), bb[1].toInt(), bb[2].toInt(),
-											bb[3].toInt(), bb[4].toInt(), bb[5].toInt(),
-											featureProperties["id"].toString(),
-											featureProperties["id"].toString(),
-											featureProperties);
-								}
-							}
+							mapview->addStructure(element);
+							extendStructuresMenu(element.getId());
 						}
 					}
 				}
@@ -735,10 +703,11 @@ void Minutor::loadStructures(const QDir& dataPath)
 				int cx = village->at("CX")->toInt();
 				int cy = village->at("CY")->toInt();
 				int cz = village->at("CZ")->toInt();
-				specialArea(cx - radius, cy - radius, cz - radius,
-							cx + radius, cy + radius, cz + radius,
-							"Village", "Village", village->getData());
 
+				Structure element( cx - radius, cy - radius, cz - radius,
+								   cx + radius, cy + radius, cz + radius,
+								   "Village", village->getData());
+				mapview->addStructure(element);
 			}
 		}
 	}

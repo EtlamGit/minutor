@@ -26,48 +26,54 @@
  */
 
 
-#ifndef __CHUNK_H__
-#define __CHUNK_H__
+#ifndef __STRUCTURE_H__
+#define __STRUCTURE_H__
 
-#include <QtCore>
-#include <QVector>
+#include <QMap>
+#include <QString>
+#include <QVariant>
+#include <QPainter>
+class Tag;
 
-#include "nbt.h"
-#include "entity.h"
-class BlockIdentifier;
-
-class ChunkSection
+class Structure
 {
 public:
-	quint16 getBlock(int x, int y, int z);
-	quint8  getData(int x, int y, int z);
-	quint8  getLight(int x, int y, int z);
+	Structure(int nx1 = 0, int ny1 = 0, int nz1 = 0,
+			  int nx2 = 0, int ny2 = 0, int nz2 = 0,
+			  QString nid = "");
 
-	quint16 blocks[4096];
-	quint8  data[2048];
-	quint8  light[2048];
+	Structure(int nx1, int ny1, int nz1,
+			  int nx2, int ny2, int nz2,
+			  QString  nid,
+			  QVariant npropperties);
+
+	bool  load(const QVariant& feature);
+
+	const QString&  getId() const { return id; }
+	const QVariant& getProperties() const { return properties; }
+	double getX1() const { return x1; }
+	double getY1() const { return y1; }
+	double getZ1() const { return z1; }
+	double getX2() const { return x2; }
+	double getY2() const { return y2; }
+	double getZ2() const { return z2; }
+
+	void draw(double offsetX, double offsetZ, double scale, QPainter& canvas) const;
+	
+	bool intersects(double x1, double y1, double z1,
+                    double x2, double y2, double z2) const;
+	
+private:
+	static const int MIN_SIZE = 10;
+
+	int      x1, y1, z1, x2, y2, z2;
+	QString  id;
+	QVariant properties;
+	QColor   color;
 };
 
-class Chunk
-{
-public:
-	Chunk();
-	void load(NBT &nbt);
-	~Chunk();
-protected:
-	quint8 biomes[256];
-	int highest;
-	ChunkSection *sections[16];
-	int renderedAt;
-	int renderedFlags;
-	bool loaded;
-	uchar image[16*16*4];	//cached render
-	QList<Entity> entities;
-	int chunkX;
-	int chunkZ;
-	friend class MapView;
-	friend class ChunkCache;
-	friend class WorldSave;
-};
+
+//           type      
+typedef QMap<QString, QList< Structure > > TStructureMap;
 
 #endif
