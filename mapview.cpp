@@ -103,8 +103,6 @@ void MapView::setDimension(QString path, int scale)
 	cache.clear();
 	cache.setPath(path);
 	
-	entities.clear();
-	
 	redraw();
 }
 
@@ -351,13 +349,20 @@ void MapView::redraw()
 	//add on the Entity layer
 	foreach(Entity::ECAT type, entityFilter)
 	{
-		foreach(const Entity& element, entities[type])
+		for (int cz=startz; cz<startz+blockstall; ++cz)
 		{
-			//for Entitites, restrict the depth we see them
-			int mindepth = getY(floor(element.getX()), floor(element.getZ())) - 4;
-			if (element.intersects(x1, mindepth, z1, x2+1, depth, z2+1))
+			for (int cx=startx; cx<startx+blockswide; ++cx)
 			{
-                element.draw(x1, z1, zoom, canvas);
+				Chunk *chunk = cache.fetch(cx,cz);
+				foreach(const Entity& element, chunk->entities[type])
+				{
+					//for Entitites, restrict the depth we see them
+					int mindepth = getY(floor(element.getX()), floor(element.getZ())) - 4;
+					if (element.intersects(x1, mindepth, z1, x2+1, depth, z2+1))
+					{
+					    element.draw(x1, z1, zoom, canvas);
+					}
+				}
 			}
 		}
 	}
@@ -375,14 +380,6 @@ void MapView::drawChunk(int x, int z)
 
 	if (chunk && (chunk->renderedAt!=depth || chunk->renderedFlags!=flags))
 	{
-		if (chunk->renderedAt == -1)
-		{
-			//this should probably not be in the drawing code?
-			foreach (Entity element, chunk->entities)
-			{
-				addEntity( element );
-			}
-		}
 		renderChunk(chunk);
 	}
 
@@ -637,13 +634,11 @@ void MapView::getToolTip(int x, int z)
 
 		foreach (Entity::ECAT type, entityFilter)
 		{
-			foreach (const Entity& entity, entities[type])
+			foreach (const Entity& entity, chunk->entities[type])
 			{
-				double ymin = 0;
-				double ymax = depth;
-				ymin = y - 4;
-				ymax = y + 4;
-				if (entity.intersects(x, ymin, z, x, ymax, z))
+				double ymin = y - 4;
+				double ymax = y + 4;
+				if (entity.intersects(x, ymin, z, x+1.0, ymax, z+1.0))
 				{
 					entityIds[entity.getId()]++;
 				}
@@ -690,17 +685,6 @@ void MapView::addStructure(QString type,
 			               int x2, int y2, int z2)
 {
 	structures[type].push_back(Structure(x1, y1, z1, x2, y2, z2, type));
-}
-
-void MapView::addEntity(Entity & entity)
-{
-	entities[entity.getCatergory()].push_back(entity);
-}
-
-void MapView::addEntity(QString type, double x, double y, double z)
-{
-	Entity e(x, y, z, type);
-	entities[e.getCatergory()].push_back(e);
 }
 
 int MapView::getY(int x, int z)

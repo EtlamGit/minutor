@@ -62,7 +62,7 @@ protected:
 	int renderedFlags;
 	bool loaded;
 	uchar image[16*16*4];	//cached render
-	QList<Entity> entities;
+	QMap< Entity::ECAT, QList<Entity> > entities;
 	int chunkX;
 	int chunkZ;
 	friend class MapView;

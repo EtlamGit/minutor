@@ -80,7 +80,7 @@ void Chunk::load(NBT &nbt)
 	{
 		Entity e;
 		e.load(entitylist->at(i));
-		entities.append(e);
+		entities[e.getCatergory()].append(e);
 	}
 
 
