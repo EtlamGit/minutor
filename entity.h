@@ -65,10 +65,13 @@ private:
 	QString  id;
 	ECAT     category;
 	QVariant properties;
-	QColor   color;
+	QColor   colorP;
+	QColor   colorB;
+	
+	static QStringList mobTypes;
 };
 
-//           type
+//           category
 typedef QMap<Entity::ECAT, QList< Entity > > TEntityMap;
 
 #endif // ENTITY_H

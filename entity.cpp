@@ -62,66 +62,154 @@ void Entity::draw(double offsetX, double offsetZ, double scale, QPainter& canvas
 //	QPen pen = canvas.pen();
 //	pen.setColor(color);
 	//pen.setWidth(MIN_SIZE/2);
-	canvas.setPen(QColor(0, 0, 0, 0));
+	canvas.setPen(colorP);
 
-	canvas.setBrush(QBrush(color));
+	canvas.setBrush(QBrush(colorB));
 	canvas.drawEllipse(QPoint(cx,cz), 5, 5);
 }
 
 void Entity::defineCategory()
 {
-	if ( (id=="Blaze") ||
-		 (id=="CaveSpider") ||
-		 (id=="Creeper") ||
-		 (id=="EnderDragon") ||
-		 (id=="Enderman") ||
-		 (id=="Endermite") ||
-		 (id=="Ghast") ||
-		 (id=="Guardian") ||
-		 (id=="LavaSlime") ||
-		 (id=="PigZombie") ||
-		 (id=="Silverfish") ||
-		 (id=="Skeleton") ||
-		 (id=="Slime") ||
-		 (id=="Spider") ||
-		 (id=="Witch") ||
-		 (id=="WitherBoss") ||
-		 (id=="Zombie") )
+	// define the background color by category
+	switch (mobTypes.indexOf(id))
 	{
-		// hostile
-		color = Qt::red;
+	// hostile
+	case  0: // "Blaze"
+	case  1: // "CaveSpider"
+	case  2: // "Creeper"
+	case  3: // "EnderDragon"
+	case  4: // "Enderman"
+	case  5: // "Endermite"
+	case  6: // "Ghast"
+	case  7: // "Guardian"
+	case  8: // "LavaSlime"
+	case  9: // "PigZombie"
+	case 10: // "Silverfish"
+	case 11: // "Skeleton"
+	case 12: // "Slime"
+	case 13: // "Spider"
+	case 14: // "Witch"
+	case 15: // "WitherBoss"
+	case 16: // "Zombie"
+		colorB = Qt::red;
 		category = Entity::ECAT::ET_HOSTILE; 
-	} else if ( (id=="Bat") ||
-				(id=="Chicken") ||
-				(id=="Cow") ||
-				(id=="EntityHorse") ||
-				(id=="Pig") ||
-				(id=="Mooshroom") ||
-				(id=="Ocelot") ||
-				(id=="Rabbit") ||
-				(id=="Sheep") ||
-				(id=="SnowMan") ||
-				(id=="Squid") ||
-				(id=="Wolf") ||
-				(id=="Villager") ||
-				(id=="VillagerGolem") )
-	{
-		// passive
-		color = Qt::white;
+		break;
+	// passive
+	case 17: // "Bat"
+	case 18: // "Chicken"
+	case 19: // "Cow"
+	case 20: // "EntityHorse"
+	case 21: // "Pig"
+	case 22: // "Mooshroom"
+	case 23: // "Ocelot"
+	case 24: // "Rabbit"
+	case 25: // "Sheep"
+	case 26: // "SnowMan"
+	case 27: // "Squid"
+	case 28: // "Wolf"
+	case 29: // "Villager"
+	case 30: // "VillagerGolem"
+		colorB = Qt::white;
 		category = Entity::ECAT::ET_PASSIVE; 
-	} else if (id=="Item")
-	{
-		// Item
-		color = Qt::blue;
+		break;
+	// Item
+	case 31: // "Item"
+		colorB = Qt::blue;
 		category = Entity::ECAT::ET_ITEM; 
-	}
-	else
-	{
+		break;
+	// all the rest
+	default:
 		// generate color from hashed structure name	
 		quint32 hue = qHash(this->id);
-		color.setHsv(hue % 360, 255, 255);
+		colorB.setHsv(hue % 360, 255, 255);
 		category = Entity::ECAT::ET_OTHER; 
 	}
-	color.setAlpha(128);
+	colorB.setAlpha(128);
+
+	//define the outer highlight color by exact Mob type	
+	switch (mobTypes.indexOf(id))
+	{
+	// hostile
+	case  0: /* "Blaze" */         colorP = Qt::yellow; break;
+	case  1: /* "CaveSpider" */    colorP = Qt::darkYellow; break;
+	case  2: /* "Creeper" */       colorP = Qt::red; break;
+	case  3: /* "EnderDragon" */   colorP = Qt::magenta; break;
+	case  4: /* "Enderman" */      colorP = Qt::darkMagenta; break;
+	case  5: /* "Endermite" */     colorP = Qt::magenta; break;
+	case  6: /* "Ghast" */         colorP = Qt::white; break;
+	case  7: /* "Guardian" */      colorP = Qt::darkBlue; break;
+	case  8: /* "LavaSlime" */     colorP = Qt::green; break;
+	case  9: /* "PigZombie" */     colorP = Qt::darkGreen; break;
+	case 10: /* "Silverfish" */    colorP = Qt::darkGray; break;
+	case 11: /* "Skeleton" */      colorP = Qt::lightGray; break;
+	case 12: /* "Slime" */         colorP = Qt::green; break;
+	case 13: /* "Spider" */        colorP = Qt::black; break;
+	case 14: /* "Witch" */         colorP = Qt::darkCyan; break;
+	case 15: /* "WitherBoss" */    colorP = Qt::darkGray; break;
+	case 16: /* "Zombie" */        colorP = Qt::darkGreen; break;
+
+	// passive
+	case 17: /* "Bat" */           colorP = Qt::darkRed; break;
+	case 18: /* "Chicken" */       colorP = Qt::yellow; break;
+	case 19: /* "Cow" */           colorP = Qt::darkCyan; break;
+	case 20: /* "EntityHorse" */   colorP = Qt::darkBlue; break;
+	case 21: /* "Pig" */           colorP = Qt::magenta; break;
+	case 22: /* "Mooshroom" */     colorP = Qt::red; break;
+	case 23: /* "Ocelot" */        colorP = Qt::darkYellow; break;
+	case 24: /* "Rabbit" */        colorP = Qt::gray; break;
+	case 25: /* "Sheep" */         colorP = Qt::lightGray; break;
+	case 26: /* "SnowMan" */       colorP = Qt::white; break;
+	case 27: /* "Squid" */         colorP = Qt::black; break;
+	case 28: /* "Wolf" */          colorP = Qt::darkGray; break;
+	case 29: /* "Villager" */ 	   colorP = Qt::darkMagenta; break;
+	case 30: /* "VillagerGolem" */ colorP = Qt::cyan; break;
+
+	// Item
+	case 31: /* "Item" */          colorP = Qt::white; break;
+
+	// all the rest
+	default:
+		// generate color from hashed structure name	
+		quint32 hue = qHash(this->id);
+		colorP.setHsv(hue % 360, 255, 255);
+	}
+	colorP.setAlpha(192);
 }
 
+
+QStringList Entity::mobTypes = QStringList()
+	<< "Blaze"         //  0
+	<< "CaveSpider"    //  1
+	<< "Creeper"       //  2
+	<< "EnderDragon"   //  3
+	<< "Enderman"      //  4
+	<< "Endermite"     //  5
+	<< "Ghast"         //  6
+	<< "Guardian"      //  7
+	<< "LavaSlime"     //  8
+	<< "PigZombie"     //  9
+	<< "Silverfish"    // 10
+	<< "Skeleton"      // 11
+	<< "Slime"         // 12
+	<< "Spider"        // 13
+	<< "Witch"         // 14
+	<< "WitherBoss"    // 15
+	<< "Zombie"        // 16
+
+	<< "Bat"           // 17
+	<< "Chicken"       // 18
+	<< "Cow"           // 19
+	<< "EntityHorse"   // 20
+	<< "Pig"           // 21
+	<< "Mooshroom"     // 22
+	<< "Ocelot"        // 23
+	<< "Rabbit"        // 24
+	<< "Sheep"         // 25
+	<< "SnowMan"       // 26
+	<< "Squid"         // 27
+	<< "Wolf"          // 28
+	<< "Villager"      // 29
+	<< "VillagerGolem" // 30
+	
+	<< "Item"          // 31
+;
