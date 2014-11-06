@@ -354,13 +354,16 @@ void MapView::redraw()
 			for (int cx=startx; cx<startx+blockswide; ++cx)
 			{
 				Chunk *chunk = cache.fetch(cx,cz);
-				foreach(const Entity& element, chunk->entities[type])
+				if (chunk)
 				{
-					//for Entitites, restrict the depth we see them
-					int mindepth = getY(floor(element.getX()), floor(element.getZ())) - 4;
-					if (element.intersects(x1, mindepth, z1, x2+1, depth, z2+1))
+					foreach(const Entity& element, chunk->entities[type])
 					{
-					    element.draw(x1, z1, zoom, canvas);
+						//for Entitites, restrict the depth we see them
+						int mindepth = getY(floor(element.getX()), floor(element.getZ())) - 4;
+						if (element.intersects(x1, mindepth, z1, x2+1, depth, z2+1))
+						{
+						    element.draw(x1, z1, zoom, canvas);
+						}
 					}
 				}
 			}
