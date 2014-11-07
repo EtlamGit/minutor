@@ -55,7 +55,7 @@ bool Entity::intersects(double x1, double y1, double z1,
 
 
 void Entity::draw(double offsetX, double offsetZ, double scale, QPainter& canvas) const
-{    
+{
 	double cx = ((x - offsetX) * scale);
 	double cz = ((z - offsetZ) * scale);
 
@@ -92,7 +92,7 @@ void Entity::defineCategory()
 	case 15: // "WitherBoss"
 	case 16: // "Zombie"
 		colorB = Qt::red;
-		category = Entity::ECAT::ET_HOSTILE; 
+		category = Entity::ECAT::ET_HOSTILE;
 		break;
 	// passive
 	case 17: // "Bat"
@@ -101,7 +101,7 @@ void Entity::defineCategory()
 	case 20: // "EntityHorse"
 	case 21: // "Pig"
 	case 22: // "Mooshroom"
-	case 23: // "Ocelot"
+	case 23: // "Ozelot"
 	case 24: // "Rabbit"
 	case 25: // "Sheep"
 	case 26: // "SnowMan"
@@ -110,23 +110,23 @@ void Entity::defineCategory()
 	case 29: // "Villager"
 	case 30: // "VillagerGolem"
 		colorB = Qt::white;
-		category = Entity::ECAT::ET_PASSIVE; 
+		category = Entity::ECAT::ET_PASSIVE;
 		break;
 	// Item
 	case 31: // "Item"
 		colorB = Qt::blue;
-		category = Entity::ECAT::ET_ITEM; 
+		category = Entity::ECAT::ET_ITEM;
 		break;
 	// all the rest
 	default:
-		// generate color from hashed structure name	
+		// generate color from hashed structure name
 		quint32 hue = qHash(this->id);
 		colorB.setHsv(hue % 360, 255, 255);
-		category = Entity::ECAT::ET_OTHER; 
+		category = Entity::ECAT::ET_OTHER;
 	}
 	colorB.setAlpha(128);
 
-	//define the outer highlight color by exact Mob type	
+	//define the outer highlight color by exact Mob type
 	switch (mobTypes.indexOf(id))
 	{
 	// hostile
@@ -155,7 +155,7 @@ void Entity::defineCategory()
 	case 20: /* "EntityHorse" */   colorP = Qt::darkBlue; break;
 	case 21: /* "Pig" */           colorP = Qt::magenta; break;
 	case 22: /* "Mooshroom" */     colorP = Qt::red; break;
-	case 23: /* "Ocelot" */        colorP = Qt::darkYellow; break;
+	case 23: /* "Ozelot" */        colorP = Qt::darkYellow; break;
 	case 24: /* "Rabbit" */        colorP = Qt::gray; break;
 	case 25: /* "Sheep" */         colorP = Qt::lightGray; break;
 	case 26: /* "SnowMan" */       colorP = Qt::white; break;
@@ -169,7 +169,7 @@ void Entity::defineCategory()
 
 	// all the rest
 	default:
-		// generate color from hashed structure name	
+		// generate color from hashed structure name
 		quint32 hue = qHash(this->id);
 		colorP.setHsv(hue % 360, 255, 255);
 	}
@@ -202,7 +202,7 @@ QStringList Entity::mobTypes = QStringList()
 	<< "EntityHorse"   // 20
 	<< "Pig"           // 21
 	<< "Mooshroom"     // 22
-	<< "Ocelot"        // 23
+	<< "Ozelot"        // 23
 	<< "Rabbit"        // 24
 	<< "Sheep"         // 25
 	<< "SnowMan"       // 26
@@ -210,6 +210,6 @@ QStringList Entity::mobTypes = QStringList()
 	<< "Wolf"          // 28
 	<< "Villager"      // 29
 	<< "VillagerGolem" // 30
-	
+
 	<< "Item"          // 31
 ;
