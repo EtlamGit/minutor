@@ -59,10 +59,10 @@ void Entity::draw(double offsetX, double offsetZ, double scale, QPainter& canvas
 	double cx = ((x - offsetX) * scale);
 	double cz = ((z - offsetZ) * scale);
 
-//	QPen pen = canvas.pen();
-//	pen.setColor(color);
-	//pen.setWidth(MIN_SIZE/2);
-	canvas.setPen(colorP);
+	QPen pen = canvas.pen();
+	pen.setColor(colorP);
+	pen.setWidth(2);
+	canvas.setPen(pen);
 
 	canvas.setBrush(QBrush(colorB));
 	canvas.drawEllipse(QPoint(cx,cz), 5, 5);
