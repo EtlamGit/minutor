@@ -43,6 +43,12 @@ void LabelledSlider::changeValue(int v) {
   slider->setValue(slider->value() + v);
 }
 
+// public slot
+void LabelledSlider::setRange(int minVal, int maxVal)
+{
+  slider->setRange(minVal, maxVal);
+}
+
 // private slot
 void LabelledSlider::intValueChange(int v) {
   label->setNum(v);

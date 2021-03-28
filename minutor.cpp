@@ -635,15 +635,24 @@ void Minutor::loadWorld(QDir path) {
   currentWorld = path;
 
   NBT level(path.filePath("level.dat"));
-
   auto data = level.at("Data");
+
   // add level name to window title
   setWindowTitle(qApp->applicationName() + " - " +
                  data->at("LevelName")->toString());
+
   // save world spawn
   jumpSpawnAct->setData(locations.count());
   locations.append(Location(data->at("SpawnX")->toDouble(),
                             data->at("SpawnZ")->toDouble()));
+
+  // get maximum build height
+  if (data->has("DataVersion") &&
+      data->at("DataVersion")->toInt() >= 2694 ) {
+    depth->setRange(0-64, 255+64);
+  } else
+    depth->setRange(0, 255);
+
   // show saved players
   if (path.cd("playerdata") || path.cd("players")) {
     QDirIterator it(path);
