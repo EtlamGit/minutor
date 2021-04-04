@@ -159,6 +159,7 @@ class Tag_Compound : public Tag {
  public:
   explicit Tag_Compound(TagDataStream *s);
   ~Tag_Compound();
+  virtual int length() const;
   bool has(const QString key) const;
   const Tag *at(const QString key) const;
   virtual const QString toString() const;

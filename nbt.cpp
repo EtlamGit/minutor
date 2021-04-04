@@ -408,6 +408,9 @@ Tag_Compound::~Tag_Compound() {
   for (auto i = children.constBegin(); i != children.constEnd(); i++)
     delete i.value();
 }
+int Tag_Compound::length() const {
+  return children.size();
+}
 bool Tag_Compound::has(const QString key) const {
   return children.contains(key);
 }
