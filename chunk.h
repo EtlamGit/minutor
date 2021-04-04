@@ -65,15 +65,16 @@ signals:
 
 
   int version;
-  qint32 biomes[16 * 16 * 4];
+  qint32 biomes[16 * 16 * 6];
   int highest;
-  std::array<ChunkSection*, 16> sections;
+  std::array<ChunkSection*, 4+16+4> sections;
+  int sectionOffset;         // offset to get lowest Chunk at address 0
   int renderedAt;
   int renderedFlags;
   bool loaded;
   bool rendering;
   uchar image[16 * 16 * 4];  // cached render: RGBA for 16*16 Blocks
-  uchar depth[16 * 16];
+  short depth[16 * 16];      // cached depth map to create shadow
   EntityMap entities;
   int chunkX;
   int chunkZ;

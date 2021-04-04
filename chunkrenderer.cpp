@@ -30,7 +30,7 @@ void ChunkRenderer::run() {
 void ChunkRenderer::renderChunk(QSharedPointer<Chunk> chunk) {
   int offset = 0;
   uchar *bits = chunk->image;
-  uchar *depthbits = chunk->depth;
+  short *depthbits = chunk->depth;
   for (int z = 0; z < 16; z++) {  // n->s
     int lasty = -1;
     for (int x = 0; x < 16; x++, offset++) {  // e->w
@@ -43,9 +43,10 @@ void ChunkRenderer::renderChunk(QSharedPointer<Chunk> chunk) {
       if (flags & MapView::flgSingleLayer)
         top = depth;
       int highest = 0;
-      for (int y = top; y >= 0; y--) {  // top->down
+      for (int y_ = top; y_ >= chunk->sectionOffset*16; y_--) {  // top->down
+        int y = y_ - chunk->sectionOffset*16;
         // perform a one deep scan in SingleLayer mode
-        if ((flags & MapView::flgSingleLayer) && (y < top))
+        if ((flags & MapView::flgSingleLayer) && (y_ < top))
           break;
         int sec = y >> 4;
         ChunkSection *section = chunk->sections[sec];
@@ -66,8 +67,9 @@ void ChunkRenderer::renderChunk(QSharedPointer<Chunk> chunk) {
         // get light value from one block above
         int light = 0;
         ChunkSection *section1 = NULL;
-        if (y < 255)
-          section1 = chunk->sections[(y+1) >> 4];
+        int sec1 = (y+1) >> 4;
+        if (sec1 < static_cast<int>(chunk->sections.size()))
+          section1 = chunk->sections[sec1];
         if (section1)
           light = section1->getBlockLight(offset, y+1);
         int light1 = light;
@@ -83,7 +85,7 @@ void ChunkRenderer::renderChunk(QSharedPointer<Chunk> chunk) {
 //        if (light > 15) light = 15;
 
         // get Biome
-        auto &biome = BiomeIdentifier::Instance().getBiome(chunk->get_biome(x,y,z));
+        auto &biome = BiomeIdentifier::Instance().getBiome(chunk->get_biome(x,y_,z));
         // get current block color
         QColor blockcolor = block.colors[15];  // get the color from Block definition
         if (block.biomeWater()) {
@@ -120,10 +122,12 @@ void ChunkRenderer::renderChunk(QSharedPointer<Chunk> chunk) {
           uint blid1(0), blid2(0), blidB(0);  // default to legacy air (todo: better handling of block above)
           ChunkSection *section2 = NULL;
           ChunkSection *sectionB = NULL;
-          if (y < 254)
-            section2 = chunk->sections[(y+2) >> 4];
-          if (y > 0)
-            sectionB = chunk->sections[(y-1) >> 4];
+          int sec2 = (y+2) >> 4;
+          int secB = (y-1) >> 4;
+          if (sec2 < static_cast<int>(chunk->sections.size()))
+            section2 = chunk->sections[sec2];
+          if (secB >= 0)
+            sectionB = chunk->sections[secB];
           if (section1) {
             blid1 = section1->getPaletteEntry(offset, y+1).hid;
           }

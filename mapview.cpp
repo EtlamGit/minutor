@@ -497,11 +497,11 @@ void MapView::getToolTip(int x, int z) {
 
   if (chunk) {
     int top = qMin(depth, chunk->highest);
-    for (y = top; y >= 0; y--) {
-      int section_idx = y >> 4;
+    for (y = top; y >= chunk->sectionOffset*16; y--) {
+      int section_idx = (y >> 4) - chunk->sectionOffset;
       const ChunkSection *section = chunk->sections[section_idx];
       if (!section) {
-        y = (section_idx << 4) - 1;  // skip entire section
+        y -= ((y >> 4) << 4) - 1;  // skip entire section
         continue;
       }
       // get information about block
@@ -613,7 +613,7 @@ int MapView::getY(int x, int z) {
   int cx = floor(x / 16.0);
   int cz = floor(z / 16.0);
   QSharedPointer<Chunk> chunk(cache.fetch(cx, cz));
-  return chunk ? chunk->depth[(x & 0xf) + (z & 0xf) * 16] : -1;
+  return chunk ? chunk->depth[(x & 0xf) + (z & 0xf) * 16] : (chunk->sectionOffset*16 -1);
 }
 
 QList<QSharedPointer<OverlayItem>> MapView::getItems(int x, int y, int z) {
@@ -627,7 +627,7 @@ QList<QSharedPointer<OverlayItem>> MapView::getItems(int x, int y, int z) {
     for (auto &type : overlayItemTypes) {
       // generated structures
       for (auto &item : overlayItems[type]) {
-        double ymin = 0;
+        double ymin = chunk->sectionOffset*16;
         double ymax = depth;
         if (item->intersects(OverlayItem::Point(x, ymin, z),
                              OverlayItem::Point(x, ymax, z))) {

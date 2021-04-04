@@ -21,13 +21,14 @@ inline void* safeMemCpy(void* dest, const std::vector<ValueT>& srcVec, size_t le
 Chunk::Chunk()
   : version(0)
   , highest(0)
+  , sectionOffset(0)
   , loaded(false)
   , rendering(false)
 {}
 
 Chunk::~Chunk() {
   if (loaded) {
-    for (int i = 0; i < 16; i++)
+    for (size_t i = 0; i < this->sections.size(); i++)
       if (sections[i]) {
         if (!(sections[i]->paletteIsShared) && (sections[i]->paletteLength > 0)) {
           delete[] sections[i]->palette;
@@ -50,12 +51,18 @@ int Chunk::get_biome(int x, int z) {
 int Chunk::get_biome(int x, int y, int z) {
   int offset;
 
-  if (this->version >= 2203) {
-    // Minecraft 1.15 has Y dependand Biome
+  if (this->version >= 2694) {
+    // Minecraft 1.17 has more Y height
     int x_idx = x >> 2;
-    int y_idx = y >> 2;
+    int y_idx = (y - this->sectionOffset*16) >> 2;
     int z_idx = z >> 2;
     offset = x_idx + 4*z_idx + 16*y_idx;
+  } else if (this->version >= 2203) {
+      // Minecraft 1.15 has Y dependand Biome
+      int x_idx = x >> 2;
+      int y_idx = y >> 2;
+      int z_idx = z >> 2;
+      offset = x_idx + 4*z_idx + 16*y_idx;
   } else {
     // Minecraft <1.15 has fixed Biome per collumn
     offset = x + 16*z;
@@ -71,9 +78,9 @@ int Chunk::get_biome(int offset) {
 
 
 void Chunk::load(const NBT &nbt) {
-  renderedAt = -1;  // impossible.
+  renderedAt = -999;  // impossible.
   renderedFlags = 0;  // no flags
-  for (int i = 0; i < 16; i++)
+  for (size_t i = 0; i < this->sections.size(); i++)
     this->sections[i] = NULL;
 
   if (nbt.has("DataVersion"))
@@ -88,7 +95,10 @@ void Chunk::load(const NBT &nbt) {
   if (level->has("Biomes") && level->at("Biomes") && level->at("Biomes")->length()) {
     const Tag_Int_Array * biomes = dynamic_cast<const Tag_Int_Array*>(level->at("Biomes"));
     if (biomes) {  // Biomes is a Tag_Int_Array
-      if ((this->version >= 2203)) {
+      if ((this->version >= 2694)) {
+        // raw copy Biome data
+        safeMemCpy(this->biomes, biomes->toIntArray(), sizeof(int)*1536);
+      } else if ((this->version >= 2203)) {
         // raw copy Biome data
         safeMemCpy(this->biomes, biomes->toIntArray(), sizeof(int)*1024);
       } else if ((this->version >= 1519)) {
@@ -116,8 +126,13 @@ void Chunk::load(const NBT &nbt) {
     for (int s = 0; s < numSections; s++) {
       const Tag * section = sections->at(s);
       int idx = section->at("Y")->toInt();
-      // only sections 0..15 contain block data
-      if ((idx >=0) && (idx <16)) {
+      // only sections  0..15 contain block data for worlds up to 1.16
+      // only sections -4..19 contain block data starting from 1.17
+      const Tag_Compound * tc = static_cast<const Tag_Compound *>(section);
+      if (tc->length() <= 1)
+        continue; // skip sections without data
+
+      if ((-4 <= idx) && (idx < 16+4)) {
         ChunkSection *cs = new ChunkSection();
         if (this->version >= 1519) {
           loadSection1519(cs, section);
@@ -125,7 +140,16 @@ void Chunk::load(const NBT &nbt) {
           loadSection1343(cs, section);
         }
 
-        this->sections[idx] = cs;
+        // update sectionOffset
+        if (idx < this->sectionOffset) {
+          int offset = (this->sectionOffset - idx);
+          int maxSection = static_cast<int>(this->sections.size());
+          for (int i = maxSection-1; i>offset; i--)
+              this->sections[i] = this->sections[i-offset];
+          this->sectionOffset = idx;
+        }
+
+        this->sections[idx-this->sectionOffset] = cs;
       }
     }
   }
@@ -161,11 +185,12 @@ void Chunk::load(const NBT &nbt) {
 
 void Chunk::findHighestBlock()
 {
-  for (int i = 15; i >= 0; i--) {
-    if (this->sections[i]) {
-      for (int j = 4095; j >= 0; j--) {
-        if (this->sections[i]->blocks[j]) {
-          highest = i * 16 + (j >> 8);
+  int maxSection = static_cast<int>(this->sections.size());
+  for (int ys = maxSection-1; ys >= 0; ys--) {
+    if (this->sections[ys]) {
+      for (int b = 4095; b >= 0; b--) {
+        if (this->sections[ys]->blocks[b]) {
+          highest = (ys - this->sectionOffset) * 16 + (b >> 8);
           return;
         }
       }
@@ -178,7 +203,7 @@ const Chunk::EntityMap &Chunk::getEntityMap() const {
 }
 
 const ChunkSection *Chunk::getSectionByY(int y) const {
-  size_t section_idx = static_cast<size_t>(y) >> 4;
+  size_t section_idx = (static_cast<size_t>(y) >> 4) - this->sectionOffset;
   if (section_idx >= sections.size())
     return nullptr;
 
