@@ -81,6 +81,8 @@ private slots:
 
   void about();
 
+  void updateDatapackMenu();
+
   void updateDimensions();
   void rescanWorlds();
   void saveProgress(QString status, double value);

@@ -504,8 +504,43 @@ void Minutor::about() {
                         "&copy; Copyright %3, %4")
                      .arg(qApp->applicationName())
                      .arg(qApp->applicationVersion())
-                     .arg("2010 - 2021")
+                     .arg("2010 - 2023")
                      .arg(qApp->organizationName()));
+}
+
+
+void Minutor::updateDatapackMenu() {
+  // remove actions from last world
+  QList<QAction *> actions(m_ui.menu_View->actions());
+  QList<QAction *> remove;
+  bool deleteNextSeparator = false;
+  for (int a=0; a<actions.length(); a++) {
+    if (actions[a]->text() == "ChunkLock") {
+      remove.append(actions[a]);
+      deleteNextSeparator = true;
+    }
+    if (deleteNextSeparator && actions[a]->isSeparator()) {
+      remove.append(actions[a]);
+      deleteNextSeparator = false;
+    }
+  }
+  for (int a=0; a<remove.length(); a++) {
+    m_ui.menu_View->removeAction(actions[a]);
+    delete remove[a];
+  }
+
+  // add new actions
+  if (WorldInfo::Instance().isDatapackEnabled("chunklock")) {
+    QAction *action = new QAction(m_ui.menu_View);
+    action->setText("ChunkLock");
+    action->setStatusTip(tr("Displays chunks locked by ChunkLock"));
+    action->setEnabled(true);
+    action->setCheckable(true);
+    // put it into menu
+    m_ui.menu_View->insertAction(m_ui.action_Refresh, action); // add at bottom
+    // add new separator
+    m_ui.menu_View->insertSeparator(m_ui.action_Refresh);
+  }
 }
 
 void Minutor::updateDimensions() {
@@ -775,6 +810,7 @@ void Minutor::loadWorld(QDir path) {
   WorldInfo & wi(WorldInfo::Instance());
   wi.parseWorldFolder(path);
   wi.parseWorldInfo();
+  updateDatapackMenu();
 
   // add level name to window title
   setWindowTitle(qApp->applicationName() + " - " + wi.getLevelName());
