@@ -1,7 +1,7 @@
 {
   "name": "Vanilla",
   "type": "entity",
-  "version": "1.21.25w36a",
+  "version": "1.21.25w41a",
   "data": [
     {
       "category": "Hostile",
@@ -420,6 +420,14 @@
         {
           "id": "copper_golem",
           "color": "#c06c50"
+        },
+        {
+          "id": "nautilus",
+          "color": "#e6a393"
+        },
+        {
+          "id": "zombie_nautilus",
+          "color": "#92996d"
         }
       ]
     },
