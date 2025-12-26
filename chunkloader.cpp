@@ -77,12 +77,35 @@ bool ChunkLoader::loadNbtHelper(QString filename, int cx, int cz, QSharedPointer
   const int chunkStart = coffset * 4096;
   const int chunkSize = numSectors * 4096;
 
-  if (f.size() < (chunkStart + chunkSize)) {
-    // Chunk not yet fully written by Minecraft
+  // Check if chunk header (5 bytes: 4 length + 1 compression) is readable
+  if (f.size() < chunkStart + 5) {
+    f.close();
     return false;
   }
 
-  uchar *raw = f.map(chunkStart, chunkSize);
+  // Read chunk header to get actual data length
+  f.seek(chunkStart);
+  char headerBuf[5];
+  if (f.read(headerBuf, 5) != 5) {
+    f.close();
+    return false;
+  }
+  const uchar *hdr = reinterpret_cast<const uchar*>(headerBuf);
+  int actualLength = (hdr[0] << 24) | (hdr[1] << 16) | (hdr[2] << 8) | hdr[3];
+
+  // Sanity check: length must be positive and fit within allocated sectors
+  if (actualLength <= 0 || actualLength + 4 > chunkSize) {
+    f.close();
+    return false;
+  }
+
+  // Check actual data fits in file (handles unpadded files like WorldTools exports)
+  if (f.size() < chunkStart + 4 + actualLength) {
+    f.close();
+    return false;
+  }
+
+  uchar *raw = f.map(chunkStart, actualLength + 4);
   if (raw == NULL) {
     f.close();
     return false;

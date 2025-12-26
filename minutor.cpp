@@ -1194,6 +1194,8 @@ void Minutor::loadStructures(QDir path) {
   // attempt to parse all of the files in the data directory, looking for
   // generated structures
   for (auto &fileName : path.entryList(QStringList() << "*.dat")) {
+    if (fileName.startsWith("map_"))  // map files don't contain structures
+      continue;
     NBT file(path.filePath(fileName));
     auto data = file.at("data");
 
