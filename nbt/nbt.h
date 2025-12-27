@@ -17,8 +17,11 @@ class NBT {
   const Tag * at(const QString key) const;
 
   static Tag Null;
+
  private:
-  Tag *root;
+  void unpack_zlib(const unsigned char * data, unsigned long length, int windowsize = 15);
+
+  Tag * root;
 };
 
 #endif  // NBT_H_
