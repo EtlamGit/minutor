@@ -4,6 +4,7 @@
 #include <QFile>
 
 #include "nbt/nbt.h"
+#include "lz4/lz4.h"
 
 
 // this handles decoding the gzipped level.dat
@@ -29,6 +30,8 @@ NBT::NBT(const uchar *chunk)
   // supported compression formats
   if (chunk[4] == 1) unpack_zlib(data, length - 1, 15 + 16);   // rfc1952 not used by official Minecraft
   if (chunk[4] == 2) unpack_zlib(data, length - 1, 15 + 0);    // rfc1950 default for all Chunk data
+  if (chunk[4] == 3) {;}
+  if (chunk[4] == 4) unpack_lz4(data, length - 1);             // LZ4 compression
 }
 
 Tag NBT::Null;
@@ -68,6 +71,79 @@ void NBT::unpack_zlib(const unsigned char * data, unsigned long length, int wind
     root = new Tag_Compound(&s);
   }
 }
+
+
+// Minecraft uses an incompatible Java implementation of LZ4
+// -> so we have to decode magic headers by ourself
+static const char LZ4_MAGIC[] = {'L', 'Z', '4', 'B', 'l', 'o', 'c', 'k'};
+static const int  LZ4_MAGIC_LENGTH = sizeof(LZ4_MAGIC);
+
+static const int LZ4_COMPRESSION_METHOD_RAW = 0x10;
+static const int LZ4_COMPRESSION_METHOD_LZ4 = 0x20;
+static const int LZ4_COMPRESSION_LEVEL_BASE = 10;
+static const int LZ4_DEFAULT_SEED = 0x9747b28c;
+
+// read an int from Little Endian byte stream
+long readIntLE(const unsigned char * data) {
+  return (data[3] << 24) | (data[2] << 16) | (data[1] << 8) | (data[0]);
+}
+
+void NBT::unpack_lz4(const unsigned char * data, unsigned long length) {
+  if (length < LZ4_MAGIC_LENGTH+13) return;
+
+  QByteArray nbt;
+
+  const unsigned char * input = data;
+
+  while ((input - data) < length) {
+    // decode LZ4-Java block header
+    for (int m=0; m<LZ4_MAGIC_LENGTH; m++) {
+      if (input[m] != LZ4_MAGIC[m]) return;
+    }
+    const unsigned char token = input[LZ4_MAGIC_LENGTH];
+    const unsigned char compression_method = token & 0xF0;
+    const unsigned char compression_level  = LZ4_COMPRESSION_LEVEL_BASE + (token & 0x0F);
+    if ((compression_method != LZ4_COMPRESSION_METHOD_RAW) && (compression_method != LZ4_COMPRESSION_METHOD_LZ4)) return;
+    const long compressed_length  = readIntLE(input + LZ4_MAGIC_LENGTH + 1);
+    const long original_length    = readIntLE(input + LZ4_MAGIC_LENGTH + 5);
+    const long checksum           = readIntLE(input + LZ4_MAGIC_LENGTH + 9);
+    input += LZ4_MAGIC_LENGTH + 13;
+
+    // special block indicating "no more data"
+    if ((compressed_length == 0) && (original_length == 0)) break;
+    // error checks
+    if (compressed_length < 0) return;
+    if (original_length < 0) return;
+    if ((compressed_length == 0) && (original_length != 0)) return;
+    if ((original_length == 0) && (compressed_length != 0)) return;
+    if ((compression_method == LZ4_COMPRESSION_METHOD_RAW) && (original_length != compressed_length)) return;
+
+    // input buffer overflow check
+    if (((input - data) + compressed_length) > length) return;
+
+    if (compression_method == LZ4_COMPRESSION_METHOD_RAW) {
+      // copy RAW block
+      nbt.append(reinterpret_cast<const char *>(input), original_length);
+    } else {
+      // decompress one block
+      char * output = reinterpret_cast<char *>(malloc(original_length));
+      int ret = LZ4_decompress_safe(reinterpret_cast<const char *>(input), output,
+                                    compressed_length, original_length);
+      nbt.append(output, ret);
+      free(output);
+    }
+    // advance input data pointer
+    input += compressed_length;
+  }
+
+  TagDataStream s(nbt.constData(), nbt.size());
+
+  if (s.r8() == Tag::TAG_COMPOUND) {  // outer compound is expected
+    s.skip(s.r16());  // skip name (should be empty anyways)
+    root = new Tag_Compound(&s);
+  }
+}
+
 
 bool NBT::has(const QString key) const {
   return root->has(key);

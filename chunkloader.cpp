@@ -85,8 +85,8 @@ bool ChunkLoader::loadNbtHelper(QString filename, int cx, int cz, QSharedPointer
 
   // Read chunk header to get actual data length
   f.seek(chunkStart);
-  char headerBuf[5];
-  if (f.read(headerBuf, 5) != 5) {
+  char headerBuf[4];
+  if (f.read(headerBuf, 4) != 4) {
     f.close();
     return false;
   }
