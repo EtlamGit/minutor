@@ -30,7 +30,7 @@ NBT::NBT(const uchar *chunk)
   // supported compression formats
   if (chunk[4] == 1) unpack_zlib(data, length - 1, 15 + 16);   // rfc1952 not used by official Minecraft
   if (chunk[4] == 2) unpack_zlib(data, length - 1, 15 + 0);    // rfc1950 default for all Chunk data
-  if (chunk[4] == 3) {;}
+  if (chunk[4] == 3) decode_nbt(data, length - 1);             // copy uncompressed data
   if (chunk[4] == 4) unpack_lz4(data, length - 1);             // LZ4 compression
 }
 
@@ -64,12 +64,7 @@ void NBT::unpack_zlib(const unsigned char * data, unsigned long length, int wind
   } while (stream.avail_out == 0);
   inflateEnd(&stream);
 
-  TagDataStream s(nbt.constData(), nbt.size());
-
-  if (s.r8() == Tag::TAG_COMPOUND) {  // outer compound is expected
-    s.skip(s.r16());  // skip name (should be empty anyways)
-    root = new Tag_Compound(&s);
-  }
+  decode_nbt(nbt.constData(), nbt.size());
 }
 
 
@@ -136,14 +131,21 @@ void NBT::unpack_lz4(const unsigned char * data, unsigned long length) {
     input += compressed_length;
   }
 
-  TagDataStream s(nbt.constData(), nbt.size());
+  decode_nbt(nbt.constData(), nbt.size());
+}
+
+void NBT::decode_nbt(const unsigned char * data, unsigned long length) {
+  decode_nbt(reinterpret_cast<const char *>(data),  length);
+}
+
+void NBT::decode_nbt(const char * data, unsigned long length) {
+  TagDataStream s(data, length);
 
   if (s.r8() == Tag::TAG_COMPOUND) {  // outer compound is expected
     s.skip(s.r16());  // skip name (should be empty anyways)
     root = new Tag_Compound(&s);
   }
 }
-
 
 bool NBT::has(const QString key) const {
   return root->has(key);

@@ -21,6 +21,8 @@ class NBT {
  private:
   void unpack_zlib(const unsigned char * data, unsigned long length, int windowsize = 15);
   void unpack_lz4(const unsigned char * data, unsigned long length);
+  void decode_nbt(const unsigned char * data, unsigned long length);
+  void decode_nbt(const char * data, unsigned long length);
 
   Tag * root;
 };
