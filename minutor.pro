@@ -32,6 +32,8 @@ HEADERS += \
     identifier/entityidentifier.h \
     identifier/flatteningconverter.h \
     jumpto.h \
+    lz4/lz4.h \
+    lz4/xxhash.h \
     mapview.h \
     minutor.h \
     nbt/nbt.h \
@@ -79,6 +81,8 @@ SOURCES += \
     identifier/entityidentifier.cpp \
     identifier/flatteningconverter.cpp \
     jumpto.cpp \
+    lz4/lz4.c \
+    lz4/xxhash.c \
     main.cpp \
     mapview.cpp \
     minutor.cpp \
@@ -136,7 +140,7 @@ SOURCES += \
     zlib/uncompr.c \
     zlib/zutil.c
 
-INCLUDEPATH += identifer json nbt overlay search zlib
+INCLUDEPATH += identifer json nbt overlay search zlib lz4
 }
 
 desktopfile.path = /usr/share/applications

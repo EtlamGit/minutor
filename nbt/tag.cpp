@@ -334,8 +334,7 @@ const QVariant Tag_List::getData() const {
 
 Tag_Compound::Tag_Compound(TagDataStream *s) {
   quint8 type;
-  while ((type = s->r8()) != 0) {
-    // until tag_end
+  while ((type = s->r8()) != TAG_END) { // parse until we reach TAG_END
     quint16 len = s->r16();
     QString key = s->utf8(len);
     Tag *child;
