@@ -1,3 +1,28 @@
+# Definition files
+This folder contains definitions for vanilla Biomes, Blocks, Dimensions and Entites.
+They are JSON files and the general layout is:
+{
+  "name": "Vanilla",
+  "type": <type>,
+  "version": <version number>,
+  "data": [ <list of definitions> ],
+  "update": <URL to search for updates>
+}
+
+"name" is always "Vanilla",
+in case you create a definition file for a mod, place mod name here.
+
+"type" is "biome", "block", "flatblock", "dimension" or "entity"
+
+"version" is the version of this file. This is used for update check!
+Use official Minecraft version where the change has been introduced:
+Up to 1.21.11 it was Minecraft major and minor version plus the snapshot week.
+Starting with 26.1 it is Minecraft major and minor verion plus the snapshot version.
+
+"update" is a URL where to get the latest version of this update file.
+This URL is checked once a week and "version" is compared.
+
+
 ## Definition files for Blocks
 
 Up to Minecraft 1.12.2 Block definitions were stored in: vanilla_ids.json
