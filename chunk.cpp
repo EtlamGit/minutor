@@ -576,12 +576,38 @@ void Chunk::loadSection_decodeBlockPalette(ChunkSection * cs, const Tag * palett
   cs->blockPaletteIsShared = false;
   cs->blockPalette = new PaletteEntry[cs->blockPaletteLength];
   for (int j = 0; j < paletteTag->length(); j++) {
-    // get name and hash it to hid
-    cs->blockPalette[j].name = paletteTag->at(j)->at("Name")->toString();
-    uint hid  = qHash(cs->blockPalette[j].name);
-    // copy all other properties
-    if (paletteTag->at(j)->has("Properties"))
-    cs->blockPalette[j].properties = paletteTag->at(j)->at("Properties")->getData().toMap();
+    uint hid = qHash("minecraft:air");
+    auto paletteEntry = paletteTag->at(j);
+    if (dynamic_cast<const Tag_Compound*>(paletteEntry) != NULL) {
+      if (this->version < 5009) {
+        if (paletteEntry->has("Name"))
+          cs->blockPalette[j].name = paletteEntry->at("Name")->toString();
+        // copy all other Properties
+        if (paletteEntry->has("Properties"))  // upper case
+          cs->blockPalette[j].properties = paletteEntry->at("Properties")->getData().toMap();
+      } else {
+        if (paletteEntry->length() == 1) {
+          if (paletteEntry->has(""))
+            cs->blockPalette[j].name = paletteEntry->at("")->toString();
+        } else {
+          if (paletteEntry->has("id"))
+            cs->blockPalette[j].name = paletteEntry->at("id")->toString();
+        }
+        // copy all other properties
+        if (paletteEntry->has("properties"))  // now lower case
+          cs->blockPalette[j].properties = paletteEntry->at("properties")->getData().toMap();
+      }
+      // hash name to hid
+      hid = qHash(cs->blockPalette[j].name);
+    }
+    // starting with 26.3 palette entries with only a Tag_String occur when Blocks have NO properties
+    if (dynamic_cast<const Tag_String*>(paletteEntry) != NULL) {
+      // get name and hash it to hid
+      cs->blockPalette[j].name = paletteEntry->toString();
+      hid = qHash(cs->blockPalette[j].name);
+      // NO other properties available
+      // cs->blockPalette[j].properties.clear();
+    }
 
     // check vor variants
     BlockInfo const & block = bi.getBlockInfo(hid);
