@@ -1,7 +1,7 @@
 {
   "name": "Vanilla",
   "type": "flatblock",
-  "version": "26.2.3",
+  "version": "26.3.0",
   "data": [
     {
       "name": "minecraft:air",
@@ -547,11 +547,19 @@
     },
     {
       "name": "minecraft:cherry_log",
-      "color": "#b98d89",
+      "color": "#37212C",
       "variants": [
+        {
+          "blockstate": "axis:x",
+          "color": "#b98d89"
+        },
         {
           "blockstate": "axis:y",
           "color": "#37212C"
+        },
+        {
+          "blockstate": "axis:z",
+          "color": "#b98d89"
         }
       ]
     },
@@ -561,11 +569,19 @@
     },
     {
       "name": "minecraft:stripped_cherry_log",
-      "color": "#d79195",
+      "color": "#dda59e",
       "variants": [
+        {
+          "blockstate": "axis:x",
+          "color": "#d79195"
+        },
         {
           "blockstate": "axis:y",
           "color": "#dda59e"
+        },
+        {
+          "blockstate": "axis:z",
+          "color": "#d79195"
         }
       ]
     },
@@ -816,151 +832,271 @@
     },
     {
       "name": "minecraft:oak_log",
-      "color": "#665132",
+      "color": "#9b7d4d",
       "variants": [
+        {
+          "blockstate": "axis:x",
+          "color": "#665132"
+        },
         {
           "blockstate": "axis:y",
           "color": "#9b7d4d"
+        },
+        {
+          "blockstate": "axis:z",
+          "color": "#665132"
         }
       ]
     },
     {
       "name": "minecraft:spruce_log",
-      "color": "#2e1d0c",
+      "color": "#695130",
       "variants": [
+        {
+          "blockstate": "axis:x",
+          "color": "#2e1d0c"
+        },
         {
           "blockstate": "axis:y",
           "color": "#695130"
+        },
+        {
+          "blockstate": "axis:z",
+          "color": "#2e1d0c"
         }
       ]
     },
     {
       "name": "minecraft:birch_log",
-      "color": "#cfcec9",
+      "color": "#b8a67a",
       "variants": [
+        {
+          "blockstate": "axis:x",
+          "color": "#cfcec9"
+        },
         {
           "blockstate": "axis:y",
           "color": "#b8a67a"
+        },
+        {
+          "blockstate": "axis:z",
+          "color": "#cfcec9"
         }
       ]
     },
     {
       "name": "minecraft:jungle_log",
-      "color": "#57441b",
+      "color": "#9a7749",
       "variants": [
+        {
+          "blockstate": "axis:x",
+          "color": "#57441b"
+        },
         {
           "blockstate": "axis:y",
           "color": "#9a7749"
+        },
+        {
+          "blockstate": "axis:z",
+          "color": "#57441b"
         }
       ]
     },
     {
       "name": "minecraft:acacia_log",
-      "color": "#696359",
+      "color": "#9a5b40",
       "variants": [
+        {
+          "blockstate": "axis:x",
+          "color": "#696359"
+        },
         {
           "blockstate": "axis:y",
           "color": "#9a5b40"
+        },
+        {
+          "blockstate": "axis:z",
+          "color": "#696359"
         }
       ]
     },
     {
       "name": "minecraft:dark_oak_log",
-      "color": "#342917",
+      "color": "#4e3e29",
       "variants": [
+        {
+          "blockstate": "axis:x",
+          "color": "#342917"
+        },
         {
           "blockstate": "axis:y",
           "color": "#4e3e29"
+        },
+        {
+          "blockstate": "axis:z",
+          "color": "#342917"
         }
       ]
     },
     {
       "name": "minecraft:mangrove_log",
-      "color": "#544329",
+      "color": "#67312a",
       "variants": [
+        {
+          "blockstate": "axis:x",
+          "color": "#544329"
+        },
         {
           "blockstate": "axis:y",
           "color": "#67312a"
+        },
+        {
+          "blockstate": "axis:z",
+          "color": "#544329"
         }
       ]
     },
     {
       "name": "minecraft:pale_oak_log",
-      "color": "#c7bdbc",
+      "color": "#584e4b",
       "variants": [
+        {
+          "blockstate": "axis:x",
+          "color": "#c7bdbc"
+        },
         {
           "blockstate": "axis:y",
           "color": "#584e4b"
+        },
+        {
+          "blockstate": "axis:z",
+          "color": "#c7bdbc"
         }
       ]
     },
     {
       "name": "minecraft:stripped_spruce_log",
-      "color": "#745a34",
+      "color": "#715934",
       "variants": [
+        {
+          "blockstate": "axis:x",
+          "color": "#745a34"
+        },
         {
           "blockstate": "axis:y",
           "color": "#715934"
+        },
+        {
+          "blockstate": "axis:z",
+          "color": "#745a34"
         }
       ]
     },
     {
       "name": "minecraft:stripped_birch_log",
-      "color": "#c5b076",
+      "color": "#b9a168",
       "variants": [
+        {
+          "blockstate": "axis:x",
+          "color": "#c5b076"
+        },
         {
           "blockstate": "axis:y",
           "color": "#b9a168"
+        },
+        {
+          "blockstate": "axis:z",
+          "color": "#c5b076"
         }
       ]
     },
     {
       "name": "minecraft:stripped_jungle_log",
-      "color": "#ab8555",
+      "color": "#a67b52",
       "variants": [
         {
+          "blockstate": "axis:x",
+          "color": "#ab8555"
+        },
+        {
           "blockstate": "axis:y",
-          "color": "#ab8655"
+          "color": "#a67b52"
+        },
+        {
+          "blockstate": "axis:z",
+          "color": "#ab8555"
         }
       ]
     },
     {
       "name": "minecraft:stripped_acacia_log",
-      "color": "#af5d3c",
+      "color": "#a75c3b",
       "variants": [
+        {
+          "blockstate": "axis:x",
+          "color": "#af5d3c"
+        },
         {
           "blockstate": "axis:y",
           "color": "#a75c3b"
+        },
+        {
+          "blockstate": "axis:z",
+          "color": "#af5d3c"
         }
       ]
     },
     {
       "name": "minecraft:stripped_dark_oak_log",
-      "color": "#614c32",
+      "color": "#57452e",
       "variants": [
+        {
+          "blockstate": "axis:x",
+          "color": "#614c32"
+        },
         {
           "blockstate": "axis:y",
           "color": "#57452e"
+        },
+        {
+          "blockstate": "axis:z",
+          "color": "#614c32"
         }
       ]
     },
     {
       "name": "minecraft:stripped_oak_log",
-      "color": "#b19056",
+      "color": "#a48651",
       "variants": [
+        {
+          "blockstate": "axis:x",
+          "color": "#b19056"
+        },
         {
           "blockstate": "axis:y",
           "color": "#a48651"
+        },
+        {
+          "blockstate": "axis:z",
+          "color": "#b19056"
         }
       ]
     },
     {
       "name": "minecraft:stripped_mangrove_log",
-      "color": "#783630",
+      "color": "#6d2c2b",
       "variants": [
+        {
+          "blockstate": "axis:x",
+          "color": "#783630"
+        },
         {
           "blockstate": "axis:y",
           "color": "#6d2c2b"
+        },
+        {
+          "blockstate": "axis:z",
+          "color": "#783630"
         }
       ]
     },
@@ -969,8 +1105,16 @@
       "color": "#ebe3e2",
       "variants": [
         {
+          "blockstate": "axis:x",
+          "color": "#f6eeed"
+        },
+        {
           "blockstate": "axis:y",
           "color": "#ebe3e2"
+        },
+        {
+          "blockstate": "axis:z",
+          "color": "#f6eeed"
         }
       ]
     },
@@ -3577,11 +3721,19 @@
     },
     {
       "name": "minecraft:quartz_pillar",
-      "color": "#e8e4dc",
+      "color": "#e9e6de",
       "variants": [
+        {
+          "blockstate": "axis:x",
+          "color": "#e8e4dc"
+        },
         {
           "blockstate": "axis:y",
           "color": "#e9e6de"
+        },
+        {
+          "blockstate": "axis:z",
+          "color": "#e8e4dc"
         }
       ]
     },
@@ -3910,11 +4062,19 @@
     },
     {
       "name": "minecraft:hay_block",
-      "color": "#9e7512",
+      "color": "#a98c10",
       "variants": [
+        {
+          "blockstate": "axis:x",
+          "color": "#9e7512"
+        },
         {
           "blockstate": "axis:y",
           "color": "#a98c10"
+        },
+        {
+          "blockstate": "axis:z",
+          "color": "#9e7512"
         }
       ]
     },
@@ -4650,11 +4810,19 @@
     },
     {
       "name": "minecraft:purpur_pillar",
-      "color": "#aa7eaa",
+      "color": "#ab80ab",
       "variants": [
+        {
+          "blockstate": "axis:x",
+          "color": "#aa7eaa"
+        },
         {
           "blockstate": "axis:y",
           "color": "#ab80ab"
+        },
+        {
+          "blockstate": "axis:z",
+          "color": "#aa7eaa"
         }
       ]
     },
@@ -4818,11 +4986,19 @@
     },
     {
       "name": "minecraft:bone_block",
-      "color": "#e1ddc9",
+      "color": "#cec9b2",
       "variants": [
+        {
+          "blockstate": "axis:x",
+          "color": "#e1ddc9"
+        },
         {
           "blockstate": "axis:y",
           "color": "#cec9b2"
+        },
+        {
+          "blockstate": "axis:z",
+          "color": "#e1ddc9"
         }
       ]
     },
@@ -7046,34 +7222,58 @@
     },
     {
       "name": "minecraft:ochre_froglight",
-      "color": "#f5e9b6",
+      "color": "#fbf5cf",
       "transparent": true,
       "variants": [
         {
+          "blockstate": "axis:x",
+          "color": "#f5e9b6"
+        },
+        {
           "blockstate": "axis:y",
           "color": "#fbf5cf"
+        },
+        {
+          "blockstate": "axis:z",
+          "color": "#f5e9b6"
         }
       ]
     },
     {
       "name": "minecraft:pearlescent_froglight",
-      "color": "#ece1e5",
+      "color": "#f6f0f0",
       "transparent": true,
       "variants": [
         {
+          "blockstate": "axis:x",
+          "color": "#ece1e5"
+        },
+        {
           "blockstate": "axis:y",
           "color": "#f6f0f0"
+        },
+        {
+          "blockstate": "axis:z",
+          "color": "#ece1e5"
         }
       ]
     },
     {
       "name": "minecraft:verdant_froglight",
-      "color": "#d3ebd0",
+      "color": "#e5f4e4",
       "transparent": true,
       "variants": [
         {
+          "blockstate": "axis:x",
+          "color": "#d3ebd0"
+        },
+        {
           "blockstate": "axis:y",
           "color": "#e5f4e4"
+        },
+        {
+          "blockstate": "axis:z",
+          "color": "#d3ebd0"
         }
       ]
     },
@@ -7135,12 +7335,20 @@
     },
     {
       "name": "minecraft:muddy_mangrove_roots",
-      "color": "#443b30",
+      "color": "#463b2d",
       "transparent": true,
       "variants": [
         {
+          "blockstate": "axis:x",
+          "color": "#443b30"
+        },
+        {
           "blockstate": "axis:y",
           "color": "#463b2d"
+        },
+        {
+          "blockstate": "axis:z",
+          "color": "#443b30"
         }
       ]
     },
@@ -7396,19 +7604,35 @@
     },
     {
       "name": "minecraft:creaking_heart",
-      "color": "#52443f",
+      "color": "#473a35",
       "variants": [
-        {
-          "blockstate": "axis:y",
-          "color": "#473a35"
-        },
         {
           "blockstate": "creaking:active",
           "color": "#965431"
         },
         {
+          "blockstate": "axis:x",
+          "color": "#52443f"
+        },
+        {
+          "blockstate": "axis:y",
+          "color": "#473a35"
+        },
+        {
+          "blockstate": "axis:z",
+          "color": "#52443f"
+        },
+        {
+          "blockstate": ["axis:x", "creaking:active"],
+          "color": "#965431"
+        },
+        {
           "blockstate": ["axis:y", "creaking:active"],
           "color": "#99542d"
+        },
+        {
+          "blockstate": ["axis:z", "creaking:active"],
+          "color": "#965431"
         }
       ]
     },
@@ -7592,161 +7816,6 @@
           "color": "#f1f0f0"
         }
       ]
-    },
-    {
-      "name": "minecraft:cinnabar",
-      "color": "#98534e"
-    },
-    {
-      "name": "minecraft:cinnabar_slab",
-      "color": "#9f5751",
-      "transparent": true,
-      "variants": [
-        {
-          "blockstate": "type:top",
-          "spawnontop": true
-        },
-        {
-          "blockstate": "type:double",
-          "spawnontop": true
-        }
-      ]
-    },
-    {
-      "name": "minecraft:cinnabar_stairs",
-      "color": "#904e4a",
-      "transparent": true,
-      "variants": [
-        {
-          "blockstate": "half:top",
-          "spawnontop": true
-        }
-      ]
-    },
-    {
-      "name": "minecraft:cinnabar_wall",
-      "color": "#98534e",
-      "alpha": 0.7,
-      "transparent": true
-    },
-    {
-      "name": "minecraft:cinnabar_bricks",
-      "color": "#943836"
-    },
-    {
-      "name": "minecraft:cinnabar_brick_slab",
-      "color": "#9b3a38",
-      "transparent": true,
-      "variants": [
-        {
-          "blockstate": "type:top",
-          "spawnontop": true
-        },
-        {
-          "blockstate": "type:double",
-          "spawnontop": true
-        }
-      ]
-    },
-    {
-      "name": "minecraft:cinnabar_brick_stairs",
-      "color": "#8c3533",
-      "transparent": true,
-      "variants": [
-        {
-          "blockstate": "half:top",
-          "spawnontop": true
-        }
-      ]
-    },
-    {
-      "name": "minecraft:cinnabar_brick_wall",
-      "color": "#943836",
-      "alpha": 0.7,
-      "transparent": true
-    },
-    {
-      "name": "minecraft:potent_sulfur",
-      "color": "#d3d161"
-    },
-    {
-      "name": "minecraft:sulfur",
-      "color": "#beaf66"
-    },
-    {
-      "name": "minecraft:sulfur_slab",
-      "color": "#c7b76b",
-      "transparent": true,
-      "variants": [
-        {
-          "blockstate": "type:top",
-          "spawnontop": true
-        },
-        {
-          "blockstate": "type:double",
-          "spawnontop": true
-        }
-      ]
-    },
-    {
-      "name": "minecraft:sulfur_stairs",
-      "color": "#b4a660",
-      "transparent": true,
-      "variants": [
-        {
-          "blockstate": "half:top",
-          "spawnontop": true
-        }
-      ]
-    },
-    {
-      "name": "minecraft:sulfur_wall",
-      "color": "#beaf66",
-      "alpha": 0.7,
-      "transparent": true
-    },
-
-    {
-      "name": "minecraft:sulfur_bricks",
-      "color": "#bba85b"
-    },
-    {
-      "name": "minecraft:sulfur_brick_slab",
-      "color": "#c4b05f",
-      "transparent": true,
-      "variants": [
-        {
-          "blockstate": "type:top",
-          "spawnontop": true
-        },
-        {
-          "blockstate": "type:double",
-          "spawnontop": true
-        }
-      ]
-    },
-    {
-      "name": "minecraft:sulfur_brick_stairs",
-      "color": "#b19f56",
-      "transparent": true,
-      "variants": [
-        {
-          "blockstate": "half:top",
-          "spawnontop": true
-        }
-      ]
-    },
-    {
-      "name": "minecraft:sulfur_brick_wall",
-      "color": "#bba85b",
-      "alpha": 0.7,
-      "transparent": true
-    },
-    {
-      "name": "minecraft:sulfur_spike",
-      "color": "#beaf66",
-      "alpha": 0.7,
-      "transparent": true
     }
   ],
   "update": "https://github.com/mrkite/minutor/raw/master/definitions/vanilla_blocks.json"
