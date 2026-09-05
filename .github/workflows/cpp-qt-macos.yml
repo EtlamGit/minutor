@@ -41,7 +41,7 @@ jobs:
       with:
         version: ${{ matrix.qt }}
         target: 'desktop'
-        modules: 'qt5compat'
+        modules: ${{ matrix.os == 'macos-26' && 'qt5compat' || '' }}  # only include when using Qt6
 #       manually-cached: ${{ steps.cache-qt.outputs.cache-hit }}
         cache: 'true'
         cache-key-prefix: ${{ runner.os }}-QtCache-${{ matrix.qt }}
