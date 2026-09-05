@@ -1,7 +1,7 @@
 {
   "name": "Vanilla",
   "type": "biome",
-  "version": "26.2.1",
+  "version": "26.3.1",
   "data18": [
     {
       "id": "minecraft:ocean",
@@ -394,6 +394,13 @@
       "watermodifier": "#34bf89",
       "temperature": 0.8,
       "humidity": 0.4
+    },
+    {
+      "id": "minecraft:dappled_forest",
+      "color": "#c8c828",
+      "watermodifier": "#9a3f35",
+      "temperature": 0.6,
+      "humidity": 0.6
     }
   ],
   "data": [
