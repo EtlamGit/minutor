@@ -20,10 +20,10 @@ jobs:
         include:
           - name: macos-15
             os: macos-15
-            qt: '5.15.19'
+            qt: '5.15.*'
           - name: macos-26
             os: macos-26
-            qt: '6.11.2'
+            qt: '6.11.*'
     runs-on: ${{ matrix.os }}
 
     steps:
