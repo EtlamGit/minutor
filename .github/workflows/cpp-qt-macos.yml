@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        name: [macos-15]
+        name: [macos-15, macos-26]
 #       name: [macos-5.9, macos-5.12, macos-5.15]  old names was Qt version
         include:
           - name: macos-15
